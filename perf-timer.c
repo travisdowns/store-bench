@@ -18,6 +18,8 @@ const event MEM_EVENTS[] = {        //123456789012
     { "l2_rqsts.all_rfo",            "L2.RFO_ALL", "cpu/umask=0xE2,event=0x24/"},
     { "l2_rqsts.rfo_miss",            "L2.RFO_MISS", "cpu/umask=0x22,event=0x24/"},
     { "l2_rqsts.miss",              "L2.ALL_MISS", "cpu/umask=0x3F,event=0x24/"},
+    { "l2_rqsts.all_pf",              "L2.ALL_PF", "cpu/umask=0xF8,event=0x24/"},
+
     // { "mem_inst_retired.all_stores", "ALL_STORES",   "cpu/umask=0x82,event=0xd0/"},
     { 0 } // sentinel
 };
