@@ -1,0 +1,14 @@
+# by default exclude anythign in jevents without an extension since it's 
+# probably a binary file
+/jevents/**
+!/jevents/**/
+!/jevents/**/*.*
+
+/.*
+!.gitignore
+*.o
+*.a
+bench
+*.log
+
+
