@@ -4,6 +4,7 @@
 #include "jevents/jevents.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <linux/perf_event.h>
 
 typedef struct {
@@ -11,16 +12,17 @@ typedef struct {
     const char *event_string;
 } event;
 
-const event MEM_EVENTS[] = {        //123456789012
-    { "cpu_clk_unhalted.thread_p",   "unhalt cyc",       "cpu/event=0x3c/"},
-    // { "hw_interrupts.received", "interrupts", "cpu/config=0x1cb/"},
-    { "l2_rqsts.references",         "L2_RQSTS.ALL", "cpu/umask=0xFF,event=0x24/"},
-    { "l2_rqsts.all_rfo",            "L2.RFO_ALL", "cpu/umask=0xE2,event=0x24/"},
-    { "l2_rqsts.rfo_miss",            "L2.RFO_MISS", "cpu/umask=0x22,event=0x24/"},
-    { "l2_rqsts.miss",              "L2.ALL_MISS", "cpu/umask=0x3F,event=0x24/"},
-    { "l2_rqsts.all_pf",              "L2.ALL_PF", "cpu/umask=0xF8,event=0x24/"},
-
-    // { "mem_inst_retired.all_stores", "ALL_STORES",   "cpu/umask=0x82,event=0xd0/"},
+    const event ALL_EVENTS[] = { //123456789012
+    { "cpu_clk_unhalted.thread_p"   , "CYCLES"       , "cpu/event=0x3c/"           } ,
+    { "hw_interrupts.received"      , "INTERRUPTS"   , "cpu/config=0x1cb/"         } ,
+    { "l2_rqsts.references"         , "L2.ALL"       , "cpu/umask=0xFF,event=0x24/"} ,
+    { "l2_rqsts.all_rfo"            , "L2.RFO_ALL"   , "cpu/umask=0xE2,event=0x24/"} ,
+    { "l2_rqsts.rfo_miss"           , "L2.RFO_MISS"  , "cpu/umask=0x22,event=0x24/"} ,
+    { "l2_rqsts.miss"               , "L2.ALL_MISS"  , "cpu/umask=0x3F,event=0x24/"} ,
+    { "l2_rqsts.all_pf"             , "L2.ALL_PF"    , "cpu/umask=0xF8,event=0x24/"} ,
+    { "llc.ref"                     , "LLC.REFS"     , "cpu/umask=0x4F,event=0x2E/"} ,
+    { "llc.miss"                    , "LLC.MISS"     , "cpu/umask=0x41,event=0x2E/"} ,
+    { "mem_inst_retired.all_stores" , "ALL_STORES"   , "cpu/umask=0x82,event=0xd0/"} ,
     { 0 } // sentinel
 };
 
@@ -60,9 +62,23 @@ void print_caps(FILE *f, const struct rdpmc_ctx *ctx) {
         ctx->buf->cap_user_rdpmc, ctx->buf->cap_user_time, ctx->buf->cap_user_time_zero, ctx->buf->index);
 }
 
+/* list the events in markdown format */
+void list_events() {
+    const char *fmt = "| %-27s | %-12s |\n";
+    printf(fmt, "Full Name", "Short Name");
+    printf(fmt, "-------------------------", "-----------");
+    for (const event *e = ALL_EVENTS; e->name; e++) {
+        printf(fmt, e->name, e->short_name);
+    }
+}
 
-void setup_counters(bool verbose) {
-    for (const event *e = MEM_EVENTS; e->name; e++) {
+
+void setup_counters(bool verbose, const char *counter_string) {
+    for (const event *e = ALL_EVENTS; e->name; e++) {
+        if (!strstr(counter_string, e->short_name)) {
+            continue;
+        }
+        fprintf(stderr, "Enabling event %s (%s)\n", e->short_name, e->name);
         struct perf_event_attr attr = {};
         int err = jevent_name_to_attr(e->event_string, &attr);
         if (err) {
@@ -91,10 +107,9 @@ void setup_counters(bool verbose) {
     }
 }
 
-void print_counter_headings(const char* delim) {
+void print_counter_headings(const char* format) {
     for (size_t i = 0; i < context_count; i++) {
-        if (i != 0) printf("%s", delim);
-        printf("%12s", contexts[i].event->short_name);
+        printf(format, contexts[i].event->short_name);
     }
 }
 

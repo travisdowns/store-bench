@@ -10,5 +10,5 @@
 *.a
 bench
 *.log
-
-
+__pycache__
+/tmp/*

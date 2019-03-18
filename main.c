@@ -54,9 +54,19 @@ typedef struct {
 //                                                                                      |  /------- l2_hits
 //                                                                                      |  |   /--- loop_mul
 const test_description all_funcs[] = {   //                                             v  v   v
-    { "c++"      , random_writes     , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1,  1 },
-    { "lcg"      , random_lcg        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1,  1 },
-    { "pcg"      , random_pcg        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1,  1 },
+    { "interleaved"      , writes_inter         , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "interleaved-sfenceA", writes_inter_sfenceA , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "interleaved-sfenceB", writes_inter_sfenceB , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "interleaved-sfenceC", writes_inter_sfenceC , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wrandom1"         , write_random_singleu , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wrandom1-unroll"  , write_random_single  , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wlinear1"         , write_linear         , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wlinearHL"         , write_linearHL        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wlinearHS"         , write_linearHS        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "wlinear1-sfence"  , write_linear_sfence  , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "rlinear1"         , read_linear          , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "lcg"              , random_lcg           , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "pcg"              , random_pcg           , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
     {}  // sentinel
 };
 
@@ -148,15 +158,24 @@ int main(int argc, char** argv) {
     summary              = getenv_bool("SUMMARY");
     verbose              = !summary; // && getenv_bool("W_VERBOSE");
     bool dump_tests_flag = getenv_bool("DUMPTESTS");
-    bool use_counters    = getenv_bool("CPU_COUNTERS");
     bool allow_alias     = getenv_bool("ALLOW_ALIAS");
     bool plot            = getenv_bool("PLOT"); // output the data in csv format suitable for plotting
+    bool do_list_events  = getenv_bool("LIST_EVENTS"); // list the events and quit 
 
     int array1_kib = getenv_int("ARRAY1_SIZE", 128);
     int pincpu     = getenv_int("PINCPU",    1);
+    int iter_base  = getenv_int("ITERBASE",  100);
+
+    const char* counter_string = getenv("CPU_COUNTERS");
+    bool use_counters = counter_string != 0;
 
     if (dump_tests_flag) {
         dump_tests();
+        exit(EXIT_SUCCESS);
+    }
+
+    if (do_list_events) {
+        list_events();
         exit(EXIT_SUCCESS);
     }
 
@@ -168,7 +187,7 @@ int main(int argc, char** argv) {
     size_t start_kib = (argc == 4 ? parse_kib(argv[2]) :   4);
     size_t  stop_kib = (argc == 4 ? parse_kib(argv[3]) : 512);
 
-    const char* fname = argc >= 2 ? argv[1] : "asm";
+    const char* fname = argc >= 2 ? argv[1] : all_funcs[0].name; // first func is the default
     const test_description *test = 0;
     for (const test_description* desc = all_funcs; desc->name; desc++) {
         if (strcmp(desc->name, fname) == 0) {
@@ -189,9 +208,8 @@ int main(int argc, char** argv) {
     // run the whole test repeat_count times, each of which calls the test function iters times, 
     // and each test function should loop kernel_loops times (with 1 or 2 stores), or equivalent with unrolling
     unsigned repeat_count = 10;
-    size_t iters = 1000;
+    size_t iters = iter_base;
     size_t output1_size  = array1_kib * 1024;  // in bytes
-    size_t kernel_loops  = output1_size * test->loop_mul / 10;
 
     char *output1 = alloc(output1_size * 2);
     // adjust the second array by a page to avoid aliasing (not 4K aliasing though), unless allow_alias is set 
@@ -209,39 +227,37 @@ int main(int argc, char** argv) {
         fprintf(stderr, "array2 start   : %10zu KiB\n", start_kib);
         fprintf(stderr, "array2 stop    : %10zu KiB\n",  stop_kib);
         fprintf(stderr, "array2 align   : %10zu\n", get_alignment(output2));
-        fprintf(stderr, "expected number of L1 store hits: %zu\n", (size_t)iters * kernel_loops * repeat_count * test->l1_hits);
-        fprintf(stderr, "expected number of L2 store hits: %zu\n", (size_t)iters * kernel_loops * repeat_count * test->l2_hits);
     }
 
     if (use_counters) {
-        setup_counters(!plot);
+        setup_counters(!plot, counter_string);
     }
 
     if (!summary) {
         fprintf(stderr, "Starting main loop after %zu ms\n", (size_t)clock() * 1000u / CLOCKS_PER_SEC);
     }
 
-    double total_iters = (double)kernel_loops * iters;
-
-#define DELIM "%1$s"
-    const char *header_delim = plot ? "," : " | ";
     if (plot) {
-        printf("array2 KiB" DELIM "cycles/iter" DELIM, header_delim);
+        printf("array2 KiB,cycles/iter");
     } else {
-        printf("array2 KiB" DELIM "iter" DELIM "cyc/iter" DELIM, header_delim);
+        printf("array2 KiB | iter | cyc/iter");
     }
-    print_counter_headings(header_delim);
+    print_counter_headings(plot ? ",%s" : " | %12s");
     printf("\n");
+    
     for (size_t array2_kib = start_kib; array2_kib <= stop_kib; array2_kib *= 2) {
+        size_t array2_size = array2_kib * 1024;
+        size_t max_size = output1_size > array2_size ? output1_size : array2_size;
+        size_t kernel_loops  = 2 * max_size * test->loop_mul / 64;
+        double total_iters = (double)kernel_loops * iters;
         double min_cycles = UINT64_MAX, max_cycles = 0;
         event_counts min_counts = {};
         for (unsigned repeat = 0; repeat < repeat_count; repeat++) {
             event_counts counts_before = read_counters(); 
             cl_timepoint start = cl_now();
             for (int c = iters; c-- > 0;) {
-                test->f(kernel_loops, output1, output1_size, output2, array2_kib * 1024);
+                test->f(kernel_loops, output1, output1_size, output2, array2_size);
                 _mm_lfence(); // prevent inter-iteration overlap
-                _mm256_zeroupper();
             }
             cl_timepoint end = cl_now();
             event_counts counts_after = read_counters(); 
@@ -256,10 +272,11 @@ int main(int argc, char** argv) {
             min_cycles = fmin(min_cycles, cycles);
             max_cycles = fmax(max_cycles, cycles);
             update_min_counts(repeat == 0, &min_counts, counts_delta);
+            fflush(stdout);
         }
         if (plot) {
-            printf("%zu,%.4f,", array2_kib, min_cycles / total_iters);
-            print_count_deltas(min_counts, total_iters, "%.4f", ",");
+            printf("%zu,%.4f", array2_kib, min_cycles / total_iters);
+            print_count_deltas(min_counts, total_iters, ",%.4f", "");
             printf("\n");
         } else {
             const char *fmt = "%10zu %6s %10.2f  ";

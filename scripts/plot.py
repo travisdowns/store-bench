@@ -51,7 +51,7 @@ for i,header in enumerate(headers, 1):
     y = columns[i]
     print("Column ", i, " y = ", y)
     ax = ax2 if i > 2 else ax1 
-    ax.plot(x, y, label=header.strip())
+    ax.plot(x, y, label=header.strip(), linewidth=2, marker='.')
 
 ax1.set_ylim(bottom=0)
 plt.title('Performance of interleaved stores')

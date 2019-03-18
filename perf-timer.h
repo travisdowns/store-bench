@@ -9,7 +9,9 @@ typedef struct {
     uint64_t counts[MAX_EVENTS];
 } event_counts;
 
-void setup_counters(bool verbose);
+void list_events();
+
+void setup_counters(bool verbose, const char *counter_string);
 
 void print_counter_headings(const char *delim);
 
