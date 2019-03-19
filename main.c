@@ -54,19 +54,21 @@ typedef struct {
 //                                                                                      |  /------- l2_hits
 //                                                                                      |  |   /--- loop_mul
 const test_description all_funcs[] = {   //                                             v  v   v
-    { "interleaved"      , writes_inter         , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "interleaved-sfenceA", writes_inter_sfenceA , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "interleaved-sfenceB", writes_inter_sfenceB , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "interleaved-sfenceC", writes_inter_sfenceC , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wrandom1"         , write_random_singleu , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wrandom1-unroll"  , write_random_single  , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wlinear1"         , write_linear         , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wlinearHL"         , write_linearHL        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wlinearHS"         , write_linearHS        , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "wlinear1-sfence"  , write_linear_sfence  , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "rlinear1"         , read_linear          , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "lcg"              , random_lcg           , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
-    { "pcg"              , random_pcg           , "c++ version of fixed L1 + 16-stride L2 writes", 1, 1, 1}  ,
+    { "interleaved"      , writes_inter         , "description", 1, 1, 1}  ,
+    { "interleaved-u2"      , writes_inter_u2         , "description", 1, 1, 1}  ,
+    { "interleaved-u4"      , writes_inter_u4         , "description", 1, 1, 1}  ,
+    { "interleaved-sfenceA", writes_inter_sfenceA , "description", 1, 1, 1}  ,
+    { "interleaved-sfenceB", writes_inter_sfenceB , "description", 1, 1, 1}  ,
+    { "interleaved-sfenceC", writes_inter_sfenceC , "description", 1, 1, 1}  ,
+    { "wrandom1"         , write_random_single , "description", 1, 1, 1}  ,
+    { "wrandom1-unroll"  , write_random_singleu  , "description", 1, 1, 1}  ,
+    { "wlinear1"         , write_linear         , "description", 1, 1, 1}  ,
+    { "wlinearHL"         , write_linearHL        , "description", 1, 1, 1}  ,
+    { "wlinearHS"         , write_linearHS        , "description", 1, 1, 1}  ,
+    { "wlinear1-sfence"  , write_linear_sfence  , "description", 1, 1, 1}  ,
+    { "rlinear1"         , read_linear          , "description", 1, 1, 1}  ,
+    { "lcg"              , random_lcg           , "description", 1, 1, 1}  ,
+    { "pcg"              , random_pcg           , "description", 1, 1, 1}  ,
     {}  // sentinel
 };
 

@@ -12,6 +12,8 @@ store_function write_linearHL;
 store_function write_linearHS;
 store_function write_linear_sfence;
 store_function writes_inter;
+store_function writes_inter_u2;
+store_function writes_inter_u4;
 store_function writes_inter_sfenceA;
 store_function writes_inter_sfenceB;
 store_function writes_inter_sfenceC;

@@ -148,6 +148,42 @@ int writes_inter(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
     return 0;
 }
 
+// unroll by 2 and reorder writes to the same region to make them adjacent
+int writes_inter_u2(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
+    rng_state rng = RAND_INIT;
+    iters /= 2; // cut the iterations in half since we do double the work in each itr
+    do {
+        uint32_t val1 = RAND_FUNC(&rng);
+        uint32_t val2 = RAND_FUNC(&rng);
+        a1[(val1 & (size1 - 1))] = 1;
+        a1[(val2 & (size1 - 1))] = 1;
+        a2[(val1 & (size2 - 1))] = 2;
+        a2[(val2 & (size2 - 1))] = 2;
+    } while (--iters > 0);
+    return 0;
+}
+
+// unroll by 4 and reorder writes to the same region to make them adjacent
+int writes_inter_u4(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
+    rng_state rng = RAND_INIT;
+    iters /= 4;
+    do {
+        uint32_t val1 = RAND_FUNC(&rng);
+        uint32_t val2 = RAND_FUNC(&rng);
+        uint32_t val3 = RAND_FUNC(&rng);
+        uint32_t val4 = RAND_FUNC(&rng);
+        a1[(val1 & (size1 - 1))] = 1;
+        a1[(val2 & (size1 - 1))] = 1;
+        a1[(val3 & (size1 - 1))] = 1;
+        a1[(val4 & (size1 - 1))] = 1;
+        a2[(val1 & (size2 - 1))] = 2;
+        a2[(val2 & (size2 - 1))] = 2;
+        a2[(val3 & (size2 - 1))] = 2;
+        a2[(val4 & (size2 - 1))] = 2;
+    } while (--iters > 0);
+    return 0;
+}
+
 int writes_inter_sfenceA(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
     rng_state rng = RAND_INIT;
     do {
