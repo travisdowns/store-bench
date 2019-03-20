@@ -1,4 +1,34 @@
-Tests interleaved stores.
+Various benchmarks mostly for streams of interleaved stores, in support of the blog post [What has your microcode done for you lately?](https://travisdowns.github.io/blog/2019/03/19/random-writes-and-microcode-oh-my.html).
+
+## Building
+
+Currently it only works on Linux, but I am interested in porting it to Windows. It should be enough to run make:
+
+    make
+
+## Running
+
+At a minimum you need to provide the test name. You can get a list of test names by running the benchmark without arguments.
+
+If you provide only the test name, default starting and stopping sizes for the region are used (4 KiB to 512 KiB):
+
+    ./bench interleaved
+
+Otherwise, you can provide your starting and stopping points as the 2nd and 3rd arguments, in KiB. The plots in the blog post all use 1 to 100,000 KiB as follows:
+
+    ./bench interleaved 1 100000
+
+Values are rounded up to the next power of two, so 100,000 becomes 131,072.
+
+## Plots
+
+The `/scripts` directory contains a bunch of `.sh` scripts that I use to generate the various plots. In particular, to generate _all_ plots it should be as simple as running the `all.sh` script:
+
+    SUFFIX=new scripts/all.sh
+
+The `SUFFIX` here is appended to each plot name and indicates whether an old or new microcode version was used (the exact microcode revion is also automatically added to the plot title). The output appears in the `/assets` directory.
+
+You can also run any of the individual plots that `all.sh` creates directly, e.g., `scripts/rwrite-1-vs-2.sh` will generate the first plot from the post. My default these individual scripts will pop up an interactive window with the plot, but you can write to a file by setting the `OUTFILE` environment variable. There are a variety of other variables you can set too, for example `STOP=1000 scripts/rwrite-1-vs-2.sh` will change the stopping point to 1000 KiB which results in much faster plot generation. You can take a peek at `all.sh` for some examples or other variables.
 
 ## CPU Counters
 
