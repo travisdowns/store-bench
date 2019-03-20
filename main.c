@@ -53,23 +53,23 @@ typedef struct {
 //                                                                                      /---------- l1_hits
 //                                                                                      |  /------- l2_hits
 //                                                                                      |  |   /--- loop_mul
-const test_description all_funcs[] = {   //                                             v  v   v
-    { "interleaved"      , writes_inter         , "description", 1, 1, 1}  ,
-    { "interleaved-u2"      , writes_inter_u2         , "description", 1, 1, 1}  ,
-    { "interleaved-u4"      , writes_inter_u4         , "description", 1, 1, 1}  ,
-    { "interleaved-sfenceA", writes_inter_sfenceA , "description", 1, 1, 1}  ,
-    { "interleaved-sfenceB", writes_inter_sfenceB , "description", 1, 1, 1}  ,
-    { "interleaved-sfenceC", writes_inter_sfenceC , "description", 1, 1, 1}  ,
-    { "wrandom1"         , write_random_single , "description", 1, 1, 1}  ,
-    { "wrandom1-unroll"  , write_random_singleu  , "description", 1, 1, 1}  ,
-    { "wlinear1"         , write_linear         , "description", 1, 1, 1}  ,
-    { "wlinearHL"         , write_linearHL        , "description", 1, 1, 1}  ,
-    { "wlinearHS"         , write_linearHS        , "description", 1, 1, 1}  ,
-    { "wlinear1-sfence"  , write_linear_sfence  , "description", 1, 1, 1}  ,
-    { "rlinear1"         , read_linear          , "description", 1, 1, 1}  ,
-    { "lcg"              , random_lcg           , "description", 1, 1, 1}  ,
-    { "pcg"              , random_pcg           , "description", 1, 1, 1}  ,
-    {}  // sentinel
+    const test_description all_funcs[] = { // v v v
+    { "interleaved"        , writes_inter          , "basic interleaved stores (1 fixed, 1 variable)" , 1 , 1 , 1}  ,
+    { "interleaved-u2"     , writes_inter_u2       , "interleaved unrolled by 2x" , 1 , 1 , 1}  ,
+    { "interleaved-u4"     , writes_inter_u4       , "interleaved unrolled by 4x" , 1 , 1 , 1}  ,
+    { "interleaved-sfenceA", writes_inter_sfenceA  , "interleaved with 1 sfence" , 1 , 1 , 1}  ,
+    { "interleaved-sfenceB", writes_inter_sfenceB  , "interleaved with 1 sfence" , 1 , 1 , 1}  ,
+    { "interleaved-sfenceC", writes_inter_sfenceC  , "interleaved with 2 sfences" , 1 , 1 , 1}  ,
+    { "wrandom1"           , write_random_single   , "single region random stores " , 1 , 1 , 1}  ,
+    { "wrandom1-unroll"    , write_random_singleu  , "wrandom1 but unrolled and fast/cheaty RNG" , 1 , 1 , 1}  ,
+    { "wlinear1"           , write_linear          , "linear 64B stide writes, on steam" , 1 , 1 , 1}  ,
+    { "wlinearHL"          , write_linearHL        , "linear with lfence" , 1 , 1 , 1}  ,
+    { "wlinearHS"          , write_linearHS        , "linear with sfence" , 1 , 1 , 1}  ,
+    { "wlinear1-sfence"    , write_linear_sfence   , "linear with sfence" , 1 , 1 , 1}  ,
+    { "rlinear1"           , read_linear           , "linear 64B stride reads over one region" , 1 , 1 , 1}  ,
+    { "lcg"                , random_lcg            , "raw LCG test" , 1 , 1 , 1}  ,
+    { "pcg"                , random_pcg            , "raw PCG test" , 1 , 1 , 1}  ,
+    {} // sentinel
 };
 
 
