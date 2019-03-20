@@ -6,9 +6,57 @@ Currently it only works on Linux, but I am interested in porting it to Windows. 
 
     make
 
-## Running
+## Usage
 
-At a minimum you need to provide the test name. You can get a list of test names by running the benchmark without arguments.
+Run with no arguments for usage info, as follows:
+
+```
+Must provide 1 or 3 arguments
+
+Usage:
+	bench TEST_NAME
+
+ TEST_NAME is one of:
+
+ interleaved
+	basic interleaved stores (1 fixed 1 variable)
+ interleaved-pf-fixed
+	interleaved with fixed region prefetch
+ interleaved-pf-var
+	interleaved with variable region prefetch
+ interleaved-pf-both
+	interleaved with both region prefetch
+ interleaved-u2
+	interleaved unrolled by 2x
+ interleaved-u4
+	interleaved unrolled by 4x
+ interleaved-sfenceA
+	interleaved with 1 sfence
+ interleaved-sfenceB
+	interleaved with 1 sfence
+ interleaved-sfenceC
+	interleaved with 2 sfences
+ wrandom1
+	single region random stores 
+ wrandom1-unroll
+	wrandom1 but unrolled and fast/cheaty RNG
+ wlinear1
+	linear 64B stide writes over one stream
+ wlinearHL
+	linear with lfence
+ wlinearHS
+	linear with sfence
+ wlinear1-sfence
+	linear with sfence
+ rlinear1
+	linear 64B stride reads over one region
+ lcg
+	raw LCG test
+ pcg
+	raw PCG test
+```
+
+At a minimum you need to provide the test name from the list above.
 
 If you provide only the test name, default starting and stopping sizes for the region are used (4 KiB to 512 KiB):
 

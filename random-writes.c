@@ -148,6 +148,42 @@ int writes_inter(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
     return 0;
 }
 
+int writes_inter_pf_fixed(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
+    rng_state rng = RAND_INIT;
+    do {
+        uint32_t val = RAND_FUNC(&rng);
+        __builtin_prefetch(a1 + (val & (size1 - 1)));
+        a1[(val & (size1 - 1))] = 1;
+        a2[(val & (size2 - 1))] = 2;
+    } while (--iters > 0);
+    return 0;
+}
+
+
+int writes_inter_pf_var(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
+    rng_state rng = RAND_INIT;
+    do {
+        uint32_t val = RAND_FUNC(&rng);
+        __builtin_prefetch(a2 + (val & (size2 - 1)));
+        a1[(val & (size1 - 1))] = 1;
+        a2[(val & (size2 - 1))] = 2;
+    } while (--iters > 0);
+    return 0;
+}
+
+
+int writes_inter_pf_both(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
+    rng_state rng = RAND_INIT;
+    do {
+        uint32_t val = RAND_FUNC(&rng);
+        __builtin_prefetch(a1 + (val & (size1 - 1)));
+        __builtin_prefetch(a2 + (val & (size2 - 1)));
+        a1[(val & (size1 - 1))] = 1;
+        a2[(val & (size2 - 1))] = 2;
+    } while (--iters > 0);
+    return 0;
+}
+
 // unroll by 2 and reorder writes to the same region to make them adjacent
 int writes_inter_u2(size_t iters, char* a1, size_t size1, char *a2, size_t size2) {
     rng_state rng = RAND_INIT;
